@@ -1,0 +1,16 @@
+{
+  "name": "selfrole",
+  "version": "1.0.0",
+  "description": "A role manager discord bot.",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "IliyaBadri",
+  "license": "MIT"
+}
