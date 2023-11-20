@@ -51,7 +51,7 @@ This will start the bot, and it will be ready to respond to commands in your Dis
 
    Replace `YOUR_CLIENT_ID` with your bot's client ID, and `BOT_PERMISSIONS` with the necessary permissions (Administrator is recommended).
 
-2. Set up roles that users can assign to themselves. Users can use (`/role`) command to assign roles to themselves.
+2. Set up roles that users can assign to themselves. Users can use (`/role`) and (`remove-role`) commands to assign and remove roles to themselves.
 
 3. You can also customize anything you want from this open-source discord bot.
 
