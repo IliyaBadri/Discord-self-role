@@ -1,10 +1,28 @@
 const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js');
 const sqlite3 = require('sqlite3').verbose();
+const Messages = require("../../strings/Messages.js");
+const DatabaseModule = require("../../database/Database.js");
+
+/**
+* @param { Interaction } interaction 
+*/
+async function Execute(interaction){
+    if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)){
+        const errorContent = Messages.MissingPermission("ADMINISTRATOR");
+        const errorEmbed = new EmbedBuilder()
+            .setColor(Messages.embedColor)
+            .setTitle(errorContent.title)
+            .setDescription(errorContent.text);
+
+        await interaction.reply({embeds: [errorEmbed], ephemeral: true });
+        return;
+    }
+}
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('list-roles')
-		.setDescription('Lists all added roles for this server.'),
+		.setName("list-roles")
+		.setDescription("Lists all registered roles from this server."),
 	async execute(interaction) {
         const member = interaction.member;
 
