@@ -67,6 +67,52 @@ function CategoryCreated(category, guildName, roleName){
     return new Embed("Role added", `Successfully added a role to a category:\n> **Role:** ${roleName}\n> **Category:** ${category}\n> **Guild:** ${guildName}.`);
 }
 
+class RoleObject {
+    /**
+     * @param {string} role 
+     * @param {string} category 
+     */
+    constructor(role, category){
+        this.role = role;
+        this.category = category;
+    }
+}
+
+/**
+ * @param {Array<RoleObject>} roles 
+ * @returns {Embed}
+ */
+function RoleList(roles){
+    if(roles.length < 1){
+        return "**No roles in this server**";
+    }
+
+    let roleListString = "";
+
+    let categories = [];
+
+    for(const role of roles){
+        if(categories.includes(role.category)){
+            continue;
+        }
+
+        categories.push(role.category);
+    }
+
+    for(const category of categories){
+        roleListString += `**${category}** category:\n`;
+        for(const role of roles){
+            if(role.category !== category){
+                continue;
+            }
+
+            roleListString += `> ${role.role}\n`;
+        }
+    }
+
+    return new Embed("Roles in this server", `> **Guild:** ${guildName}.\n${roleListString}`);
+}
+
 
 
 module.exports = {
@@ -78,5 +124,7 @@ module.exports = {
     CategoryExists,
     CategoryDoesNotExists,
     CategoryCreated,
-    RoleAlreadyInCategory
+    RoleAlreadyInCategory,
+    RoleObject,
+    RoleList
 }
