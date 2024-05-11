@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, Interaction } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, Interaction } = require("discord.js");
 const Messages = require("../../strings/Messages.js");
 const DatabaseModule = require("../../database/Database.js");
 const DatabaseManager = require("../../database/DatabaseManager.js");
@@ -37,7 +37,7 @@ async function Execute(interaction){
     const roleExists = await DatabaseManager.IsRole(interaction.guild.id, categoryName, selectedRole.id);
 
     if(roleExists) {
-        const errorContent = Messages.RoleAlreadyInCategory(categoryName, selectedRole.name);
+        const errorContent = Messages.RoleAlreadyInCategory(categoryName, selectedRole.id);
         const errorEmbed = new EmbedBuilder()
             .setColor(Messages.embedColor)
             .setTitle(errorContent.title)
@@ -52,7 +52,7 @@ async function Execute(interaction){
 
     await DatabaseModule.GetRunnerPromise(insertRoleQuery, insertRoleQueryParameters);
 
-	const embedContent = Messages.CategoryCreated(categoryName, interaction.guild.name, selectedRole.name);
+	const embedContent = Messages.RoleAdded(categoryName, interaction.guild.name, selectedRole.id);
 	const embed = new EmbedBuilder()
 		.setColor(Messages.embedColor)
 		.setTitle(embedContent.title)

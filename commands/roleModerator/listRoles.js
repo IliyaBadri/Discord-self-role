@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, Interaction } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, Interaction } = require("discord.js");
 const Messages = require("../../strings/Messages.js");
 const DatabaseModule = require("../../database/Database.js");
 
@@ -36,7 +36,7 @@ async function Execute(interaction){
 
         const role = await guildRoles.get(databaseRole.roleId);
 
-        roles.push(new Messages.RoleObject(role.name, databaseRole.category));
+        roles.push(new Messages.RoleObject(role.id, databaseRole.category));
     }
 
     const embedContent = Messages.RoleList(roles);

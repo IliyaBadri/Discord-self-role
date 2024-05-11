@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, Interaction } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, Interaction } = require("discord.js");
 const Messages = require("../../strings/Messages.js");
 const DatabaseModule = require("../../database/Database.js");
 const DatabaseManager = require("../../database/DatabaseManager.js");

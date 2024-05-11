@@ -1,4 +1,4 @@
-const { Events, Interaction, EmbedBuilder } = require('discord.js');
+const { Events, Interaction, EmbedBuilder } = require("discord.js");
 const ConsoleLogs = require("../strings/ConsoleLogs.js");
 const Messages = require("../strings/Messages.js");
 

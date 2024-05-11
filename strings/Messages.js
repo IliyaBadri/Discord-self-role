@@ -50,21 +50,50 @@ function CategoryCreated(category, guildName){
 
 /**
  * @param {string} category 
- * @param {string} roleName
+ * @param {string} roleId
  * @returns {Embed}
  */
-function RoleAlreadyInCategory(category, roleName){
-    return new Embed("Error", `The **${roleName}** role already exists in the **${category}** category.`);
+function RoleAlreadyInCategory(category, roleId){
+    return new Embed("Error", `The <@&${roleId}> role already exists in the **${category}** category.`);
+}
+
+/**
+ * @param {string} category 
+ * @param {string} roleId
+ * @returns {Embed}
+ */
+function RoleIsNotInCategory(category, roleId){
+    return new Embed("Error", `The <@&${roleId}> role does not exist in the **${category}** category.`);
+}
+
+
+/**
+ * @param {string} category 
+ * @param {string} guildName
+ * @param {string} roleId
+ * @returns {Embed}
+ */
+function RoleAdded(category, guildName, roleId){
+    return new Embed("Role added", `Successfully added a role to a category:\n> **Role:** <@&${roleId}>\n> **Category:** ${category}\n> **Guild:** ${guildName}.`);
 }
 
 /**
  * @param {string} category 
  * @param {string} guildName
- * @param {string} roleName
+ * @param {string} roleId
  * @returns {Embed}
  */
-function CategoryCreated(category, guildName, roleName){
-    return new Embed("Role added", `Successfully added a role to a category:\n> **Role:** ${roleName}\n> **Category:** ${category}\n> **Guild:** ${guildName}.`);
+function RoleDeleted(category, guildName, roleId){
+    return new Embed("Role deleted", `Successfully deleted a role from a category:\n> **Role:** <@&${roleId}>\n> **Category:** ${category}\n> **Guild:** ${guildName}.`);
+}
+
+/**
+ * @param {string} category 
+ * @param {string} guildName
+ * @returns {Embed}
+ */
+function CategoryDeleted(category, guildName){
+    return new Embed("Category deleted", `Successfully deleted a category from the guild:\n> **Category:** ${category}\n> **Guild:** ${guildName}.`);
 }
 
 class RoleObject {
@@ -106,7 +135,7 @@ function RoleList(roles){
                 continue;
             }
 
-            roleListString += `> ${role.role}\n`;
+            roleListString += `> <@&${role.role}>\n`;
         }
     }
 
@@ -125,6 +154,10 @@ module.exports = {
     CategoryDoesNotExists,
     CategoryCreated,
     RoleAlreadyInCategory,
+    RoleIsNotInCategory,
+    RoleAdded,
+    RoleDeleted,
+    CategoryDeleted,
     RoleObject,
     RoleList
 }
