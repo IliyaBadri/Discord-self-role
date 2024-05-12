@@ -1,10 +1,86 @@
-const { SlashCommandBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ComponentType, Interaction } = require("discord.js");
 const sqlite3 = require('sqlite3').verbose();
+const Messages = require("../../strings/Messages.js");
+const DatabaseModule = require("../../database/Database.js");
+const DatabaseManager = require("../../database/DatabaseManager.js");
+
+/**
+ * @param {Interaction} interaction 
+ */
+async function HandleResponseCollectorInteractions(interaction, rootInteraction){
+    switch(interaction.customId){
+        case "category-selector":
+            const base64CategorySelection = interaction.values[0];
+            const categorySelection = Buffer.from(base64CategorySelection, "base64").toString("ascii");
+
+            await interaction.deferReply();
+            break;
+    }
+
+}
+
+/**
+ * @param {Interaction} interaction 
+ */
+async function Execute(interaction){
+
+    const selectGuildCategoriesQuery = "SELECT * FROM categories WHERE guildId = ?";
+    const selectGuildCategoriesQueryParameters = [interaction.guild.id];
+    const databaseCategories = await DatabaseModule.GetGetAllPromise(selectGuildCategoriesQuery, selectGuildCategoriesQueryParameters);
+
+    if(databaseCategories.length < 1){
+        const errorContent = Messages.noCategoryInThisGuild;
+        const errorEmbed = new EmbedBuilder()
+            .setColor(Messages.embedColor)
+            .setTitle(errorContent.title)
+            .setDescription(errorContent.text);
+
+        await interaction.reply({embeds: [errorEmbed], ephemeral: true });
+        return;
+    }
+
+    let categoryOptions = [];
+
+    for(const databaseCategory of databaseCategories){
+        const base64CategoryName = Buffer.from(databaseCategory.category).toString("base64");
+        const categoryDescription = Messages.CategoryStringOptionDescription(databaseCategory.category);
+        const categoryOption = new StringSelectMenuOptionBuilder()
+            .setLabel(databaseCategory.category)
+            .setDescription(categoryDescription)
+            .setValue(base64CategoryName);
+        
+        categoryOptions.push(categoryOption);
+    }
+
+    const categorySelectMenu = new StringSelectMenuBuilder()
+        .setCustomId("category-selector")
+        .addOptions(categoryOptions);
+    
+    const categorySelectionActionRow = new ActionRowBuilder()
+        .addComponents(categorySelectMenu);
+
+    const embedContent = Messages.selectCategory;
+    const categorySelectionEmbed = new EmbedBuilder()
+        .setColor(Messages.embedColor)
+        .setTitle(embedContent.title)
+        .setDescription(embedContent.text);
+
+    const response = await interaction.reply({
+        embeds: [categorySelectionEmbed],
+        components: [categorySelectionActionRow],
+        ephemeral: true
+    });
+
+    const responseCollector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
+    responseCollector.on('collect', (responseInteraction) => {
+        HandleResponseCollectorInteractions(responseInteraction, interaction);
+    });
+}
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('role')
-		.setDescription('Lets you add a selectable role to yourself.'),
+		.setName("role")
+		.setDescription("Lets you add a selectable role to yourself."),
 	async execute(interaction) {
 
         const db = new sqlite3.Database('database.db');

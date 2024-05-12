@@ -142,7 +142,17 @@ function RoleList(roles){
     return new Embed("Roles in this server", `> **Guild:** ${guildName}.\n${roleListString}`);
 }
 
+/**
+ * @param {string} category 
+ * @returns {string}
+ */
+function CategoryStringOptionDescription(category){
+    return `The **${category}** category.`;
+}
 
+const noCategoryInThisGuild = new Embed("Error", "There wasn't any category in this guild.");
+
+const selectCategory = new Embed("Select a category", "Please select a category from the menu.")
 
 module.exports = {
     embedColor,
@@ -159,5 +169,8 @@ module.exports = {
     RoleDeleted,
     CategoryDeleted,
     RoleObject,
-    RoleList
+    RoleList,
+    CategoryStringOptionDescription,
+    noCategoryInThisGuild,
+    selectCategory
 }
