@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ComponentType, Interaction } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ComponentType, Interaction, RoleSelectMenuBuilder } = require("discord.js");
 const sqlite3 = require('sqlite3').verbose();
 const Messages = require("../../strings/Messages.js");
 const ConsoleLogs = require("../../strings/ConsoleLogs.js");
@@ -10,13 +10,14 @@ const DatabaseManager = require("../../database/DatabaseManager.js");
  * @param {Interaction} rootInteraction 
  */
 async function HandleResponseCollectorInteractions(interaction, rootInteraction){
+    const guildRoles = await interaction.guild.roles.fetch();
     switch(interaction.customId){
         case "category-selector":
             const base64CategorySelection = interaction.values[0];
             const categorySelection = Buffer.from(base64CategorySelection, "base64").toString("ascii");
 
             await rootInteraction.editReply({ components: [] });
-            await interaction.deferReply();
+            await interaction.deferUpdate();
 
             const isCategory = await DatabaseManager.IsCategory(interaction.guild.id, categorySelection);
             if(!isCategory){
@@ -33,7 +34,32 @@ async function HandleResponseCollectorInteractions(interaction, rootInteraction)
             const selectCategoryRolesQuery = "SELECT * FROM roles WHERE guildId = ? AND category = ?";
             const selectCategoryRolesQueryParameters = [interaction.guild.id, categorySelection];
             const databaseCategoryRoles = await DatabaseModule.GetGetAllPromise(selectCategoryRolesQuery, selectCategoryRolesQueryParameters);
-            if(databaseCategoryRoles.length < 1){
+
+            let roleOptions = [];
+
+            for(const databaseCategoryRole of databaseCategoryRoles){
+
+                const roleExists = await guildRoles.has(databaseCategoryRole.roleId);
+
+                if(!roleExists){
+                    const deleteRoleQuery = "DELETE FROM roles WHERE id = ?";
+                    const deleteRoleQueryParameters = [databaseCategoryRole.id];
+                    await DatabaseModule.GetRunnerPromise(deleteRoleQuery, deleteRoleQueryParameters);
+                    continue;
+                }
+
+                const role = await guildRoles.get(databaseCategoryRole.roleId);
+                const base64RoleId = Buffer.from(databaseCategoryRole.roleId).toString("base64");
+                const roleDescription = Messages.RoleStringOptionDescription(role.name);
+                const roleOption = new StringSelectMenuOptionBuilder()
+                    .setLabel(`@${role.name}`)
+                    .setDescription(roleDescription)
+                    .setValue(base64RoleId);
+                
+                roleOptions.push(roleOption);
+            }
+
+            if(roleOptions.length < 1){
                 const errorContent = Messages.NoRoleInCategory(categorySelection);
                 const errorEmbed = new EmbedBuilder()
                     .setColor(Messages.embedColor)
@@ -42,19 +68,6 @@ async function HandleResponseCollectorInteractions(interaction, rootInteraction)
         
                 await rootInteraction.editReply({embeds: [errorEmbed]});
                 return;
-            }
-
-            let roleOptions = [];
-
-            for(const databaseCategoryRole of databaseCategoryRoles){
-                const base64RoleId = Buffer.from(databaseCategoryRole.roleId).toString("base64");
-                const roleDescription = Messages.RoleStringOptionDescription(databaseCategoryRole.roleId);
-                const roleOption = new StringSelectMenuOptionBuilder()
-                    .setLabel(`<@&${databaseCategoryRole.roleId}>`)
-                    .setDescription(roleDescription)
-                    .setValue(base64RoleId);
-                
-                    roleOptions.push(roleOption);
             }
 
             const roleSelectMenu = new StringSelectMenuBuilder()
@@ -85,9 +98,8 @@ async function HandleResponseCollectorInteractions(interaction, rootInteraction)
             const roleSelection = Buffer.from(base64RoleSelection, "base64").toString("ascii");
 
             await rootInteraction.editReply({ components: [] });
-            await interaction.deferReply();
+            await interaction.deferUpdate();
 
-            const guildRoles = await interaction.guild.roles.fetch();
             const roleExists = await guildRoles.has(roleSelection);
 
             if(!roleExists){

@@ -49,7 +49,6 @@ async function Execute(interaction){
 		.setColor(Messages.embedColor)
 		.setTitle(embedContent.title)
 		.setDescription(embedContent.text)
-        .setAuthor({ name: interaction.member.name, iconURL: interaction.member.avatarURL });
 
 	await interaction.reply({embeds: [embed], ephemeral: false });
 }

@@ -125,14 +125,15 @@ class RoleObject {
 
 /**
  * @param {Array<RoleObject>} roles 
+ * @param {string} guildName
  * @returns {Embed}
  */
-function RoleList(roles){
-    if(roles.length < 1){
-        return "**No roles in this server**";
-    }
-
+function RoleList(roles, guildName){
     let roleListString = "";
+
+    if(roles.length < 1){
+        roleListString = "**No roles in this server**";
+    }
 
     let categories = [];
 
@@ -155,7 +156,7 @@ function RoleList(roles){
         }
     }
 
-    return new Embed("Roles in this server", `> **Guild:** ${guildName}.\n${roleListString}`);
+    return new Embed("Roles in this server", `> **Guild:** ${guildName}.\n\n${roleListString}`);
 }
 
 /**
@@ -163,15 +164,15 @@ function RoleList(roles){
  * @returns {string}
  */
 function CategoryStringOptionDescription(category){
-    return `The **${category}** category.`;
+    return `The ( ${category} ) category.`;
 }
 
 /**
- * @param {string} roleId 
+ * @param {string} roleName 
  * @returns {string}
  */
-function RoleStringOptionDescription(roleId){
-    return `The <@&${roleId}> role.`;
+function RoleStringOptionDescription(roleName){
+    return `The @${roleName} role.`;
 }
 
 /**

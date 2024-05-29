@@ -6,6 +6,7 @@ const DatabaseModule = require("../../database/Database.js");
 * @param { Interaction } interaction 
 */
 async function Execute(interaction){
+
     if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)){
         const errorContent = Messages.MissingPermission("ADMINISTRATOR");
         const errorEmbed = new EmbedBuilder()
@@ -17,36 +18,45 @@ async function Execute(interaction){
         return;
     }
 
-    const selectRolesQuery = "SELECT * FROM roles WHERE guildId = ?";
-    const selectRolesQueryParameters = [interaction.guild.id];
-    const databaseRoles = await DatabaseModule.GetGetAllPromise(selectRolesQuery, selectRolesQueryParameters);
+    try{
+        const selectRolesQuery = "SELECT * FROM roles WHERE guildId = ?";
+        const selectRolesQueryParameters = [interaction.guild.id];
+        const databaseRoles = await DatabaseModule.GetGetAllPromise(selectRolesQuery, selectRolesQueryParameters).catch(() => {
+            
+        });
 
-    let roles = [];
+        let roles = [];
 
-    const guildRoles = await interaction.guild.roles.fetch();
+        const guildRoles = await interaction.guild.roles.fetch();
 
-    for(const databaseRole of databaseRoles){
-        const roleExists = await guildRoles.has(databaseRole.roleId);
-        if(!roleExists){
-            const deleteRoleQuery = "DELETE FROM roles WHERE id = ?";
-            const deleteRoleQueryParameters = [databaseRole.id];
-            await DatabaseModule.GetRunnerPromise(deleteRoleQuery, deleteRoleQueryParameters);
-            continue;
+        for(const databaseRole of databaseRoles){
+            const roleExists = await guildRoles.has(databaseRole.roleId);
+            if(!roleExists){
+                const deleteRoleQuery = "DELETE FROM roles WHERE id = ?";
+                const deleteRoleQueryParameters = [databaseRole.id];
+                await DatabaseModule.GetRunnerPromise(deleteRoleQuery, deleteRoleQueryParameters);
+                continue;
+            }
+
+            const role = await guildRoles.get(databaseRole.roleId);
+
+            roles.push(new Messages.RoleObject(role.id, databaseRole.category));
         }
 
-        const role = await guildRoles.get(databaseRole.roleId);
+        const embedContent = Messages.RoleList(roles, interaction.guild.name);
+        const embed = new EmbedBuilder()
+            .setColor(Messages.embedColor)
+            .setTitle(embedContent.title)
+            .setDescription(embedContent.text)
 
-        roles.push(new Messages.RoleObject(role.id, databaseRole.category));
+
+        await interaction.reply({embeds: [embed], ephemeral: false });
+    } catch (error) {
+        console.log(error);
     }
+    
 
-    const embedContent = Messages.RoleList(roles);
-	const embed = new EmbedBuilder()
-		.setColor(Messages.embedColor)
-		.setTitle(embedContent.title)
-		.setDescription(embedContent.text)
-        .setAuthor({ name: interaction.member.name, iconURL: interaction.member.avatarURL });
-
-	await interaction.reply({embeds: [embed], ephemeral: false });
+    
 }
 
 module.exports = {
