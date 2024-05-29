@@ -1,5 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ComponentType, Interaction, RoleSelectMenuBuilder } = require("discord.js");
-const sqlite3 = require('sqlite3').verbose();
+const { SlashCommandBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ComponentType, Interaction } = require("discord.js");
 const Messages = require("../../strings/Messages.js");
 const ConsoleLogs = require("../../strings/ConsoleLogs.js");
 const DatabaseModule = require("../../database/Database.js");
@@ -137,7 +136,6 @@ async function HandleResponseCollectorInteractions(interaction, rootInteraction)
             }
 
             break;
-
     }
 }
 
@@ -194,7 +192,7 @@ async function Execute(interaction){
     });
 
     const responseCollector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
-    responseCollector.on('collect', (responseInteraction) => {
+    responseCollector.on("collect", (responseInteraction) => {
         HandleResponseCollectorInteractions(responseInteraction, interaction);
     });
 }

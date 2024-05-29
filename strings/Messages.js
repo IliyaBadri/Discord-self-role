@@ -65,6 +65,22 @@ function RoleNotAddedToProfile(roleId){
 }
 
 /**
+ * @param {string} roleId
+ * @returns {Embed}
+ */
+function RoleDeletedFromProfile(roleId){
+    return new Embed("Role deleted", `Successfully deleted a role from your profile:\n> **Role:** <@&${roleId}>`);
+}
+
+/**
+ * @param {string} roleId
+ * @returns {Embed}
+ */
+function RoleNotDeletedFromProfile(roleId){
+    return new Embed("Error", `Couldn't delete the <@&${roleId}> role from your profile.\n**Possible fix:** Make sure the bot has enough permission to access the role you are trying to remove from your profile.`);
+}
+
+/**
  * @param {string} category 
  * @param {string} roleId
  * @returns {Embed}
@@ -183,6 +199,8 @@ function NoRoleInCategory(category){
     new Embed("Error", `There is no role in the category **${category}**`);
 }
 
+const noRoleInProfile = new Embed("Error", "You have not added any selectable roles to your profile.");
+
 /**
  * @param {string} roleId 
  * @returns {Embed}
@@ -195,6 +213,7 @@ const noCategoryInThisGuild = new Embed("Error", "There wasn't any category in t
 
 const selectCategory = new Embed("Select a category", "Please select a category from the menu.");
 const selectRole = new Embed("Select a role", "Please select a role from the menu to add it to your profile.");
+const selectRemoveRole = new Embed("Select a role", "Please select a role from the menu to remove it from your profile.");
 
 module.exports = {
     embedColor,
@@ -211,6 +230,8 @@ module.exports = {
     RoleDeleted,
     RoleAddedToProfile,
     RoleNotAddedToProfile,
+    RoleDeletedFromProfile,
+    RoleNotDeletedFromProfile,
     CategoryDeleted,
     RoleObject,
     RoleList,
@@ -218,7 +239,9 @@ module.exports = {
     RoleStringOptionDescription,
     NoRoleInCategory,
     InvalidRole,
+    noRoleInProfile,
     noCategoryInThisGuild,
     selectCategory,
-    selectRole
+    selectRole,
+    selectRemoveRole
 }
