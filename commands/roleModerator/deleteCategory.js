@@ -1,90 +1,69 @@
-const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js');
-const sqlite3 = require('sqlite3').verbose();
+const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, Interaction } = require("discord.js");
+const Messages = require("../../strings/Messages.js");
+const DatabaseModule = require("../../database/Database.js");
+const DatabaseManager = require("../../database/DatabaseManager.js");
+
+/**
+ * 
+ * @param {Interaction} interaction 
+ */
+async function Execute(interaction){
+    if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)){
+        const errorContent = Messages.MissingPermission("ADMINISTRATOR");
+        const errorEmbed = new EmbedBuilder()
+            .setColor(Messages.embedColor)
+            .setTitle(errorContent.title)
+            .setDescription(errorContent.text);
+
+        await interaction.reply({embeds: [errorEmbed], ephemeral: true });
+        return;
+    }
+
+    const categoryName = interaction.options.getString("category");
+
+    const categoryExists = await DatabaseManager.IsCategory(interaction.guild.id, categoryName);
+
+    if(!categoryExists) {
+        const errorContent = Messages.CategoryDoesNotExists(categoryName);
+        const errorEmbed = new EmbedBuilder()
+            .setColor(Messages.embedColor)
+            .setTitle(errorContent.title)
+            .setDescription(errorContent.text);
+
+        await interaction.reply({embeds: [errorEmbed], ephemeral: true });
+        return;
+    }
+
+    const deleteCategoryQuery = "DELETE FROM categories WHERE guildId = ? AND category = ?";
+    const deleteCategoryQueryParameters = [interaction.guild.id, categoryName];
+
+    await DatabaseModule.GetRunnerPromise(deleteCategoryQuery, deleteCategoryQueryParameters);
+
+    const deleteRolesQuery = "DELETE FROM roles WHERE guildId = ? AND category = ?";
+    const deleteRolesQueryParameters = deleteCategoryQueryParameters;
+
+    await DatabaseModule.GetRunnerPromise(deleteRolesQuery, deleteRolesQueryParameters);
+
+    const embedContent = Messages.CategoryDeleted(categoryName, interaction.guild.name);
+	const embed = new EmbedBuilder()
+		.setColor(Messages.embedColor)
+		.setTitle(embedContent.title)
+		.setDescription(embedContent.text)
+
+	await interaction.reply({embeds: [embed], ephemeral: false });
+}
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('delete-category')
-		.setDescription('Deletes an existing category and its roles from this server.')
-        .addStringOption(option =>
+		.setName("delete-category")
+		.setDescription("Deletes a category (and its roles).")
+        .addStringOption((option) =>{
             option
-                .setName('category')
-                .setDescription('The category name')
-                .setRequired(true)
-        ),
-	async execute(interaction) {
-        const member = interaction.member;
-
-		if(!member.permissions.has(PermissionsBitField.Flags.Administrator)){
-            const errorEmbed = new EmbedBuilder()
-                .setColor(0xff0000)
-                .setTitle('Error')
-                .setDescription('You need administrator privilages to use this command.')
-
-            interaction.reply({embeds:[errorEmbed], ephemeral: true});
-        }
-
-        const category = interaction.options.getString('category');
-
-        const db = new sqlite3.Database('database.db');
-
-        const selectQuery = 'SELECT * FROM categories WHERE guildId = ? AND category = ?';
-        db.get(selectQuery, [interaction.guild.id, category], async (err, row) => {
-            if (err) {
-                console.error(err);
-                db.close();
-                const errorEmbed = new EmbedBuilder()
-                    .setColor(0xff0000)
-                    .setTitle('Error')
-                    .setDescription('Failed to check if the category already exists.');
-
-                return interaction.reply({embeds: [errorEmbed], ephemeral: true});
-            }
-
-            if (!row) {
-                db.close();
-                const errorEmbed = new EmbedBuilder()
-                    .setColor(0xff0000)
-                    .setTitle('Error')
-                    .setDescription(`Category **${category}** does not exist.`);
-
-                return interaction.reply({embeds: [errorEmbed], ephemeral: true});
-            }
-
-            const deleteCategoryQuery = 'DELETE from categories WHERE guildId = ? AND category = ?';
-            db.run(deleteCategoryQuery, [interaction.guild.id, category], async function (err) {
-                if (err) {
-                    console.error(err);
-                    db.close();
-                    const errorEmbed = new EmbedBuilder()
-                        .setColor(0xff0000)
-                        .setTitle('Error')
-                        .setDescription('Failed to delete the category.');
-
-                    return interaction.reply({embeds: [errorEmbed], ephemeral: true});
-                }
-
-                const deleteRolesQuery = 'DELETE from roles WHERE guildId = ? AND category = ?';
-                db.run(deleteRolesQuery, [interaction.guild.id, category], async function (err) {
-                    if (err) {
-                        console.error(err);
-                        db.close();
-                        const errorEmbed = new EmbedBuilder()
-                            .setColor(0xff0000)
-                            .setTitle('Error')
-                            .setDescription('Failed to delete the category roles.');
-    
-                        return interaction.reply({embeds: [errorEmbed], ephemeral: true});
-                    }
-
-                    const successEmbed = new EmbedBuilder()
-                        .setColor(0x00ff00)
-                        .setTitle('Success')
-                        .setDescription(`Category **${category}** deleted successfully.`);
-
-                    await interaction.reply({embeds: [successEmbed]});
-                    db.close();
-                });
-            });
-        });
-	},
+                .setName("category")
+                .setDescription("The category name")
+                .setRequired(true);
+            
+            return option;
+        }),
+    Execute
 };
