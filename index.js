@@ -20,16 +20,17 @@ class ModuleProperty {
  * 
  * @param {Array<ModuleProperty>} moduleProperties 
  * @param {object} module 
+ * @param {string} modulePath
  * @returns {boolean}
  */
-function IsModuleValid(module, moduleProperties){
+function IsModuleValid(module, moduleProperties, modulePath){
 	for (const moduleProperty of moduleProperties){
 		if(!(moduleProperty.name in module)){
-			console.log(ConsoleLogs.NoArgumentInModule(moduleProperty.name, eventFilePath));
+			console.log(ConsoleLogs.NoArgumentInModule(moduleProperty.name, modulePath));
 			return false;
 		}
 		if (typeof module[moduleProperty.name] !== moduleProperty.type){
-			console.log(ConsoleLogs.WrongArgumentTypeInModule(moduleProperty.name, moduleProperty.type, eventFilePath));
+			console.log(ConsoleLogs.WrongArgumentTypeInModule(moduleProperty.name, moduleProperty.type, modulePath));
 			return false;
 		}
 	}
@@ -65,7 +66,7 @@ function GetCommands(){
 		 * @returns {boolean}
 		 */
 		function CommandFileFilter(fileName){
-			const filePath = Path.join(commandsPath, file);
+			const filePath = Path.join(commandsPath, fileName);
 			const fileStatus = FileSystem.statSync(filePath);
 			const fileExtension = Path.extname(filePath);
 			return (fileStatus.isFile() && fileExtension === ".js");
@@ -81,7 +82,7 @@ function GetCommands(){
 				new ModuleProperty("data", "object"),
 				new ModuleProperty("Execute", "function")
 			];
-			if(!IsModuleValid(command, commandModuleProperties)){
+			if(!IsModuleValid(command, commandModuleProperties, commandFilePath)){
 				continue;
 			}
 
@@ -112,7 +113,7 @@ function GetEvents(){
 			new ModuleProperty("executeOnce", "boolean"),
 			new ModuleProperty("Execute", "function")
 		];
-		if(!IsModuleValid(event, eventModuleProperties)){
+		if(!IsModuleValid(event, eventModuleProperties, eventFilePath)){
 			continue;
 		}
 

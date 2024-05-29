@@ -18,7 +18,7 @@ function GetDatabase(){
  */
 function GetSerializedRunnerPromise(query, parameters) {
     return new Promise((resolve, reject) => {
-        const database = getDatabase();
+        const database = GetDatabase();
         database.serialize(() => {
             database.run(query, parameters, (error) => {
                 if(error){
@@ -39,7 +39,7 @@ function GetSerializedRunnerPromise(query, parameters) {
  */
 function GetRunnerPromise(query, parameters) {
     return new Promise((resolve, reject) => {
-        const database = getDatabase();
+        const database = GetDatabase();
         database.run(query, parameters, (error) => {
             if(error){
                 reject();
@@ -58,7 +58,7 @@ function GetRunnerPromise(query, parameters) {
  */
 function GetStatementPromise(query, ...parameters) {
     return new Promise((resolve, reject) => {
-        const database = getDatabase();
+        const database = GetDatabase();
         database.serialize(() => {
             const statement = database.prepare(query, (error) => {
                 if(error){
@@ -86,7 +86,7 @@ function GetStatementPromise(query, ...parameters) {
  */
 function GetGetAllPromise(query, parameters) {
     return new Promise((resolve, reject) => {
-        const database = getDatabase();
+        const database = GetDatabase();
         database.all(query, parameters, (error, rows) => {
             if(error){
                 reject([]);
@@ -105,7 +105,7 @@ async function SetupDatabase(){
     ];
 
     for(const query of setupQueries){
-        await getSerializedRunnerPromise(query, []);
+        await GetSerializedRunnerPromise(query, []);
     }
 }
 
