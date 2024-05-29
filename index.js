@@ -7,7 +7,7 @@ const Environment = require("./environment.json");
 
 const Database = require("./database/Database.js");
 const RestApi = require("./discord/RestApi.js");
-const ConsoleLogs = require("./strings/ConsoleLogs.js")
+const ConsoleLogs = require("./strings/ConsoleLogs.js");
 
 class ModuleProperty {
 	constructor(name, type){

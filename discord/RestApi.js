@@ -1,4 +1,5 @@
 const { REST, Routes } = require('discord.js');
+const ConsoleLogs = require("../strings/ConsoleLogs.js")
 
 /**
  * @param {Array} commands
@@ -9,7 +10,8 @@ async function UpdateSlashCommands(commands, token, clientId){
     let commandsData = [];
 
     for(const command of commands){
-        commandsData.push(command.data.toJSON());
+        const commandData = command.data.toJSON();
+        commandsData.push(commandData);
     }
 
     try{
@@ -17,10 +19,10 @@ async function UpdateSlashCommands(commands, token, clientId){
 
         const apiResponse = await rest.put(
 			Routes.applicationCommands(clientId),
-			{ body: commands },
+			{ body: commandsData },
 		);
     } catch (error){
-
+        console.log(ConsoleLogs.CatchedErrorInModule(error, "Error while syncing the commands with Discord API"))
     }
 }
 

@@ -23,7 +23,7 @@ async function Execute(interaction){
     try {
         await command.Execute(interaction);
     } catch (error) {
-        console.log(ConsoleLogs.CatchedErrorInModule(error.toString(), `Command execution: ${interaction.commandName}`));
+        console.log(ConsoleLogs.CatchedErrorInModule(error, `Command execution: ${interaction.commandName}`));
 
         const errorContents = Messages.executionErrorEmbed;
 
