@@ -49,6 +49,22 @@ function CategoryCreated(category, guildName){
 }
 
 /**
+ * @param {string} roleId
+ * @returns {Embed}
+ */
+function RoleAddedToProfile(roleId){
+    return new Embed("Role added", `Successfully added a role to your profile:\n> **Role:** <@&${roleId}>`);
+}
+
+/**
+ * @param {string} roleId
+ * @returns {Embed}
+ */
+function RoleNotAddedToProfile(roleId){
+    return new Embed("Error", `Couldn't add the <@&${roleId}> role to your profile.\n**Possible fix:** Make sure the bot has enough permission to access the role you are trying to add to your profile.`);
+}
+
+/**
  * @param {string} category 
  * @param {string} roleId
  * @returns {Embed}
@@ -150,9 +166,34 @@ function CategoryStringOptionDescription(category){
     return `The **${category}** category.`;
 }
 
+/**
+ * @param {string} roleId 
+ * @returns {string}
+ */
+function RoleStringOptionDescription(roleId){
+    return `The <@&${roleId}> role.`;
+}
+
+/**
+ * @param {string} category 
+ * @returns {Embed}
+ */
+function NoRoleInCategory(category){
+    new Embed("Error", `There is no role in the category **${category}**`);
+}
+
+/**
+ * @param {string} roleId 
+ * @returns {Embed}
+ */
+function InvalidRole(roleId){
+    new Embed("Error", `The <@&${roleId}> role is not a valid role.`);
+}
+
 const noCategoryInThisGuild = new Embed("Error", "There wasn't any category in this guild.");
 
-const selectCategory = new Embed("Select a category", "Please select a category from the menu.")
+const selectCategory = new Embed("Select a category", "Please select a category from the menu.");
+const selectRole = new Embed("Select a role", "Please select a role from the menu to add it to your profile.");
 
 module.exports = {
     embedColor,
@@ -167,10 +208,16 @@ module.exports = {
     RoleIsNotInCategory,
     RoleAdded,
     RoleDeleted,
+    RoleAddedToProfile,
+    RoleNotAddedToProfile,
     CategoryDeleted,
     RoleObject,
     RoleList,
     CategoryStringOptionDescription,
+    RoleStringOptionDescription,
+    NoRoleInCategory,
+    InvalidRole,
     noCategoryInThisGuild,
-    selectCategory
+    selectCategory,
+    selectRole
 }

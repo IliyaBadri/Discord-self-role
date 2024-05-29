@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+const FileSystem = require("fs");
+const Path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 
 const Config = require("./config.json");
@@ -43,21 +43,38 @@ function IsModuleValid(module, moduleProperties){
 function GetCommands(){
 	let commands = [];
 
-	const commandFoldersPath = path.join(__dirname, Environment.commands);
-	const commandFolders = fs.readdirSync(commandFoldersPath).filter(folder => {
-		const folderPath = path.join(commandFoldersPath, folder);
-		const folderStatus = fs.statSync(folderPath);
+	const commandFoldersPath = Path.join(__dirname, Environment.commands);
+
+	/**
+	 * @param {string} directoryName
+	 * @returns {boolean}
+	 */
+	function CommandFolderFilter(directoryName){
+		const folderPath = Path.join(commandFoldersPath, directoryName);
+		const folderStatus = FileSystem.statSync(folderPath);
 		return folderStatus.isDirectory();
-	});
+	}
+
+	const commandFolders = FileSystem.readdirSync(commandFoldersPath).filter(CommandFolderFilter);
+
 	for (const commandFolder of commandFolders) {
-		const commandsPath = path.join(commandFoldersPath, commandFolder);
-		const commandFiles = fs.readdirSync(commandsPath).filter(file => {
-			const filePath = path.join(commandsPath, file);
-			const fileStatus = fs.statSync(filePath);
-			return (fileStatus.isFile() && file.endsWith('.js'));
-		});
+		const commandsPath = Path.join(commandFoldersPath, commandFolder);
+
+		/**
+		 * @param {string} fileName
+		 * @returns {boolean}
+		 */
+		function CommandFileFilter(fileName){
+			const filePath = Path.join(commandsPath, file);
+			const fileStatus = FileSystem.statSync(filePath);
+			const fileExtension = Path.extname(filePath);
+			return (fileStatus.isFile() && fileExtension === ".js");
+		}
+
+		const commandFiles = FileSystem.readdirSync(commandsPath).filter(CommandFileFilter);
+
 		for (const commandFile of commandFiles) {
-			const commandFilePath = path.join(commandsPath, commandFile);
+			const commandFilePath = Path.join(commandsPath, commandFile);
 			const command = require(commandFilePath);
 
 			const commandModuleProperties = [
@@ -81,14 +98,14 @@ function GetCommands(){
 function GetEvents(){
 	let events = [];
 	
-	const eventsPath = path.join(__dirname, Environment.events);
-	const eventFiles = fs.readdirSync(eventsPath).filter(file => {
-		const filePath = path.join(eventsPath, file);
-		const fileStatus = fs.statSync(filePath);
+	const eventsPath = Path.join(__dirname, Environment.events);
+	const eventFiles = FileSystem.readdirSync(eventsPath).filter(file => {
+		const filePath = Path.join(eventsPath, file);
+		const fileStatus = FileSystem.statSync(filePath);
 		return (fileStatus.isFile() && file.endsWith('.js'));
 	});
 	for (const eventFile of eventFiles) {
-		const eventFilePath = path.join(eventsPath, eventFile);
+		const eventFilePath = Path.join(eventsPath, eventFile);
 		const event = require(eventFilePath);
 		const eventModuleProperties = [
 			new ModuleProperty("name", "string"),
